@@ -1,30 +1,55 @@
 package com.springboot.backend.luis.usersapp.users_backend.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.springboot.backend.luis.usersapp.users_backend.entities.Role;
 import com.springboot.backend.luis.usersapp.users_backend.entities.User;
+import com.springboot.backend.luis.usersapp.users_backend.models.IUser;
+import com.springboot.backend.luis.usersapp.users_backend.models.UserRequest;
+import com.springboot.backend.luis.usersapp.users_backend.repositories.RoleRepository;
 import com.springboot.backend.luis.usersapp.users_backend.repositories.UserRepository;
 
 @Service
-public class UserServiceImpl implements UserService{
-
-
-    private UserRepository repository;
+public class UserServiceImpl implements UserService {
+    
+    private final UserRepository repository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    
+    // Un solo constructor con @Autowired
+    @Autowired
+    public UserServiceImpl(UserRepository repository, 
+                        PasswordEncoder passwordEncoder, 
+                        RoleRepository roleRepository) {  
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder; 
+        this.roleRepository = roleRepository;  
+    }
     
 
-    public UserServiceImpl(UserRepository repository) {
-        this.repository = repository;
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> findAll() {
+        return (List) this.repository.findAll();
     }
 
     @Override
-    @Transactional(readOnly = true) 
-    public List<User> findAll() {
-        return (List) this.repository.findAll();
+    @Transactional(readOnly = true)
+    public Page<User> findAll(Pageable pageable) {
+        return this.repository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)
@@ -32,17 +57,69 @@ public class UserServiceImpl implements UserService{
     public Optional<User> findById(@NonNull Long id) {
         return repository.findById(id);
     }
+    
+    @Override
+@Transactional(readOnly = true)
+public Optional<User> findByUsername(String username) {
+    return repository.findByUsername(username);
+}
+
+    @Override
+    @Transactional
+    public User save(User user) {
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            List<Role> roles = new ArrayList<>();
+            Role roleUser = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+            roles.add(roleUser);
+            user.setRoles(roles);
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return repository.save(user);
+    }
+    
 
     @Transactional
     @Override
-    public User save(User user) {
-        return repository.save(user);
+    public Optional<User> update(UserRequest user, Long id) {
+                Optional<User> userOptional = repository.findById(id);
+
+        if (userOptional.isPresent()) {
+            User userDb = userOptional.get();
+            userDb.setEmail(user.getEmail());
+            userDb.setLastname(user.getLastname());
+            userDb.setName(user.getName());
+            userDb.setUsername(user.getUsername());
+            
+
+            userDb.setRoles(getRoles(user));
+            return Optional.of(repository.save(userDb));
+        }
+
+        return Optional.empty();
     }
+
 
     @Transactional
     @Override
     public void deleteById(Long id) {
         repository.deleteById(id);
+    }
+
+
+    private List<Role> getRoles(IUser user) {
+        List<Role> roles = new ArrayList<>();
+        
+        Role roleUser = roleRepository.findByName("ROLE_USER")
+            .orElseThrow(() -> new RuntimeException("Role USER not found"));
+        roles.add(roleUser);
+        
+        if (user.isAdmin()) {
+            Role roleAdmin = roleRepository.findByName("ROLE_ADMIN")
+                .orElseThrow(() -> new RuntimeException("Role ADMIN not found"));
+            roles.add(roleAdmin);
+        }
+        return roles;
     }
 
 }
