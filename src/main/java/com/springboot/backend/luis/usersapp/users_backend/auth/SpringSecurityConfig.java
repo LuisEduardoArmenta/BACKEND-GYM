@@ -47,16 +47,31 @@ public class SpringSecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/page/{page}").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/users/register", "/login").permitAll() // Añadir login aquí
+                .requestMatchers(HttpMethod.POST, "/api/users/register", "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasRole("ADMIN")
+            
+                // Rutas protegidas para planes de membresía
+                .requestMatchers(HttpMethod.GET, "/api/planes").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/planes").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/planes/{id}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/planes/{id}").hasRole("ADMIN")
+                
+                // Rutas protegidas para membresías
+                .requestMatchers(HttpMethod.GET, "/api/membresias").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/membresias/{id}").hasAnyRole("ADMIN", "USER")
+                .requestMatchers(HttpMethod.GET, "/api/membresias/usuario/{userId}").hasAnyRole("ADMIN", "USER")
+                .requestMatchers(HttpMethod.POST, "/api/membresias").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/membresias/{id}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/membresias/{id}").hasRole("ADMIN")
+                
                 .anyRequest().authenticated())
-                .cors(cors -> cors.configurationSource(configurationSource()))
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtValidationFilter(authenticationManager()))
                 .csrf(config -> config.disable())
+                .cors(cors -> cors.configurationSource(configurationSource()))
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
