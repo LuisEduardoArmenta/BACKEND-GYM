@@ -33,7 +33,9 @@ public class JwtValidationFilter extends BasicAuthenticationFilter{
         super(authenticationManager);
     }
     private boolean isPublicRoute(String uri) {
-        return uri.equals("/api/users/register") || uri.equals("/api/users/login");
+        return uri.equals("/api/users/register") || 
+        uri.equals("/api/users/login") || 
+        uri.startsWith("/api/objetivos");
     }
     
     @Override

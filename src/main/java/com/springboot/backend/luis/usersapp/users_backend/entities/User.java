@@ -27,6 +27,8 @@ import jakarta.validation.constraints.Size;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Column;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 
 @Entity
 @Table(name = "users")
@@ -74,6 +76,10 @@ public class User implements IUser {
     @Column(name = "reset_token_expiry")
     @Temporal(TemporalType.TIMESTAMP)
     private Date resetTokenExpiry;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"user", "hibernateLazyInitializer", "handler"})
+    private List<Objetivo> objetivos;
 
     public User() {
         this.roles = new ArrayList<>();
