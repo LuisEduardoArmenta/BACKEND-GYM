@@ -17,13 +17,17 @@ public interface UserService {
 
     Page<User> findAll(Pageable pageable);
 
-    Optional<User> findById(@NonNull Long id);
+    Optional<User> findById(@NonNull Integer id);
 
     User save(User user);
 
-    Optional<User> update(UserRequest user, Long id);
+    Optional<User> update(UserRequest user, Integer id);
 
-    void deleteById(Long id);
+    void deleteById(Integer id);
 
     Optional<User> findByUsername(String username);
+
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByResetToken(String token);
 }

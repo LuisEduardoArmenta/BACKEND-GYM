@@ -51,12 +51,12 @@ public class UserController {
 
     @GetMapping("/page/{page}")
     public Page<User> listPageable(@PathVariable Integer page) {
-        Pageable pageable = PageRequest.of(page, 4);
+        Pageable pageable = PageRequest.of(page, 5);
         return service.findAll(pageable);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> show(@PathVariable Long id) {
+    public ResponseEntity<?> show(@PathVariable Integer id) {
         Optional<User> userOptional = service.findById(id);
         if (userOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(userOptional.orElseThrow());
@@ -84,7 +84,7 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody UserRequest user, BindingResult result, @PathVariable Long id) {
+    public ResponseEntity<?> update(@Valid @RequestBody UserRequest user, BindingResult result, @PathVariable Integer id) {
 
         if (result.hasErrors()) {
             return validation(result);
@@ -100,7 +100,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
         Optional<User> userOptional = service.findById(id);
         if (userOptional.isPresent()) {
             service.deleteById(id);

@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<User> findById(@NonNull Long id) {
+    public Optional<User> findById(@NonNull Integer id) {
         return repository.findById(id);
     }
     
@@ -81,8 +81,8 @@ public Optional<User> findByUsername(String username) {
 
     @Transactional
     @Override
-    public Optional<User> update(UserRequest user, Long id) {
-                Optional<User> userOptional = repository.findById(id);
+    public Optional<User> update(UserRequest user, Integer id) {
+        Optional<User> userOptional = repository.findById(id);
 
         if (userOptional.isPresent()) {
             User userDb = userOptional.get();
@@ -102,7 +102,7 @@ public Optional<User> findByUsername(String username) {
 
     @Transactional
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(Integer id) {
         repository.deleteById(id);
     }
 
@@ -120,6 +120,18 @@ public Optional<User> findByUsername(String username) {
             roles.add(roleAdmin);
         }
         return roles;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findByResetToken(String token) {
+        return repository.findByResetToken(token);
     }
 
 }

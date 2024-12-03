@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import static jakarta.persistence.GenerationType.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -23,6 +24,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "users")
@@ -30,7 +34,7 @@ public class User implements IUser {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotBlank
     private String name;
@@ -64,14 +68,21 @@ public class User implements IUser {
     )
     private List<Role> roles;
 
+    @Column(name = "reset_token")
+    private String resetToken;
+    
+    @Column(name = "reset_token_expiry")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date resetTokenExpiry;
+
     public User() {
         this.roles = new ArrayList<>();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;  
     }
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     public String getName() {
@@ -119,6 +130,22 @@ public class User implements IUser {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public Date getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(Date resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 
     

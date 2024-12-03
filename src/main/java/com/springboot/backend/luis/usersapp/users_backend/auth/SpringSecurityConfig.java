@@ -46,6 +46,7 @@ public class SpringSecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authz -> authz
+                // Rutas protegidas para usuarios
                 .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/page/{page}").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/users/register", "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("USER", "ADMIN")
@@ -66,7 +67,38 @@ public class SpringSecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/membresias").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/membresias/{id}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/membresias/{id}").hasRole("ADMIN")
+
+                // Rutas protegidas para productos
+                .requestMatchers(HttpMethod.GET, "/api/productos").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/productos/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/productos/buscar/{nombre}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/productos/categoria/{categoria}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/productos").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/productos/{id}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/productos/{id}").hasRole("ADMIN")
                 
+                // Rutas protegidas para ventas
+                .requestMatchers(HttpMethod.GET, "/api/ventas/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/ventas/**").hasAnyRole("ADMIN", "USER")
+                .requestMatchers(HttpMethod.PUT, "/api/ventas/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/ventas/**").hasRole("ADMIN")
+                
+                
+                // Rutas protegidas para control de caja
+                .requestMatchers(HttpMethod.GET, "/api/caja/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/caja/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/caja/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/caja/**").hasRole("ADMIN")
+
+                // Rutas protegidas para movimientos de caja
+                .requestMatchers(HttpMethod.GET, "/api/movimientos/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/movimientos/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/movimientos/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/movimientos/**").hasRole("ADMIN")
+
+                // Rutas protegidas para recuperación de contraseña
+                .requestMatchers("/api/password/**").permitAll()
+
                 .anyRequest().authenticated())
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtValidationFilter(authenticationManager()))
