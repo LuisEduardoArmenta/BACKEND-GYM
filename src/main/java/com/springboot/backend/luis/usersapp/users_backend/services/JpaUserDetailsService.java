@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +23,13 @@ public class JpaUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("=== DEBUG LOGIN ===");
         System.out.println("Intentando autenticar usuario: " + username);
         
         Optional<User> optionalUser = repository.findByUsername(username);
@@ -36,25 +41,22 @@ public class JpaUserDetailsService implements UserDetailsService {
 
         User user = optionalUser.orElseThrow();
         System.out.println("Usuario encontrado: " + username);
-        System.out.println("Password hash: " + user.getPassword());
+        System.out.println("Password hash almacenado: " + user.getPassword());
 
         List<GrantedAuthority> authorities = user.getRoles()
                 .stream()
-                .map(role -> {
-                    System.out.println("Role encontrado: " + role.getName());
-                    return new SimpleGrantedAuthority(role.getName());
-                })
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
 
-        System.out.println("Roles asignados: " + authorities);
-
-        return new org.springframework.security.core.userdetails.User(username,
-                user.getPassword(),
-                true,
-                true,
-                true,
-                true,
-                authorities);
+        return new org.springframework.security.core.userdetails.User(
+            username,
+            user.getPassword(),
+            true,
+            true,
+            true,
+            true,
+            authorities
+        );
     }
 
 }

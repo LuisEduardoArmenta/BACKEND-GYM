@@ -77,10 +77,6 @@ public class User implements IUser {
     @Temporal(TemporalType.TIMESTAMP)
     private Date resetTokenExpiry;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"user", "hibernateLazyInitializer", "handler"})
-    private List<Objetivo> objetivos;
-
     public User() {
         this.roles = new ArrayList<>();
     }

@@ -99,9 +99,15 @@ public class SpringSecurityConfig {
                 // Rutas protegidas para recuperación de contraseña
                 .requestMatchers("/api/password/**").permitAll()
 
-                // Rutas protegidas para objetivos
-                .requestMatchers("/api/objetivos/**").hasAnyRole("USER")
-                .requestMatchers("/api/objetivos/user/**").hasAnyRole("USER")
+                // Rutas protegidas para acceso
+                .requestMatchers("/api/access/**").permitAll()
+                .requestMatchers("/api/qr/**").permitAll()
+
+                // Rutas para QR y Access Control
+                .requestMatchers("/api/qr/generate/**").permitAll()
+                .requestMatchers("/api/qr/validate").permitAll()
+                .requestMatchers("/api/access/register").permitAll()
+                .requestMatchers("/api/access/logs/**").permitAll()
 
                 .anyRequest().authenticated())
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))

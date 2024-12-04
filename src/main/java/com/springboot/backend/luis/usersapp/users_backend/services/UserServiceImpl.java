@@ -64,19 +64,16 @@ public Optional<User> findByUsername(String username) {
     return repository.findByUsername(username);
 }
 
-    @Override
-    @Transactional
-    public User save(User user) {
-        if (user.getRoles() == null || user.getRoles().isEmpty()) {
-            List<Role> roles = new ArrayList<>();
-            Role roleUser = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-            roles.add(roleUser);
-            user.setRoles(roles);
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return repository.save(user);
+@Override
+@Transactional
+public User save(User user) {
+    // Si es una actualización, asegurarse que la contraseña esté encriptada
+    if (user.getId() != null && user.getPassword() != null) {
+        System.out.println("Actualizando usuario existente: " + user.getUsername());
+        System.out.println("Password a guardar: " + user.getPassword());
     }
+    return repository.save(user);
+}
     
 
     @Transactional
