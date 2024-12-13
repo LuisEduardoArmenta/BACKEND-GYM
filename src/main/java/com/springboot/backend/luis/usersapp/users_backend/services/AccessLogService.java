@@ -34,4 +34,8 @@ public class AccessLogService {
             Timestamp.valueOf(endDate)
         );
     }
+
+    public List<AccessLog> getRecentLogs(int limit) {
+        return accessLogRepository.findTop10ByOrderByAccessTimeDesc();
+    }
 }

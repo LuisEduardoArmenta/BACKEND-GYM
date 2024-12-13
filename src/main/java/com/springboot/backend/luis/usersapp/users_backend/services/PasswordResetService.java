@@ -1,15 +1,29 @@
 package com.springboot.backend.luis.usersapp.users_backend.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.springboot.backend.luis.usersapp.users_backend.entities.User;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -100,4 +114,26 @@ public class PasswordResetService {
             throw new RuntimeException("Error al enviar el correo: " + e.getMessage());
         }
     }
+
+
+    public void sendQrEmailWithAttachment(String email, byte[] qrImage) {
+    MimeMessage mimeMessage = mailSender.createMimeMessage();
+    try {
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        helper.setTo(email);
+        helper.setSubject("Tu Código QR de acceso - ARGYM");
+        helper.setText("Hola,\n\n" +
+            "Gracias por ser parte de la familia ARGYM.\n\n" +
+            "Te presentamos tu forma de acceso al gimnasio:\n\n" +
+            "Adjuntamos tu código QR para que acceses a nuestras instalaciones");
+
+        // Adjuntar imagen QR
+        helper.addAttachment("qr-code.png", new ByteArrayResource(qrImage));
+        
+        mailSender.send(mimeMessage);
+    } catch (MessagingException e) {
+        throw new RuntimeException("Error al enviar el correo: " + e.getMessage());
+    }
+}
+
 }

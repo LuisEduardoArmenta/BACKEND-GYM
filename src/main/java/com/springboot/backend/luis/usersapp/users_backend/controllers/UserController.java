@@ -71,6 +71,15 @@ public class UserController {
             return validation(result);
         }
 
+                // Verificar si el usuario ya existe
+                if (service.findByUsername(user.getUsername()).isPresent()) {
+                    return ResponseEntity.badRequest()
+                        .body(Collections.singletonMap("error", "El nombre de usuario ya existe"));
+                }
+
+        // encriptar la contraseña 
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
         // Aquí sí respetamos el campo admin que viene del formulario
         try {
             User savedUser = service.save(user);
@@ -132,6 +141,10 @@ public class UserController {
         // Forzar que sea solo usuario regular (no admin)
         user.setAdmin(false);
         
+
+        // encriptar la contraseña 
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
         // Guardar usuario
         try {
             User savedUser = service.save(user);

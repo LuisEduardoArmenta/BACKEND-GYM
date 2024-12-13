@@ -64,4 +64,10 @@ public class AccessControlController {
                 .body(Map.of("error", "Formato de fecha inválido"));
         }
     }
+
+    @GetMapping("/logs/recent")
+    public ResponseEntity<?> getRecentLogs() {
+        List<AccessLog> recentLogs = accessLogService.getRecentLogs(10); // últimos 10 registros
+        return ResponseEntity.ok(recentLogs);
+    }
 }

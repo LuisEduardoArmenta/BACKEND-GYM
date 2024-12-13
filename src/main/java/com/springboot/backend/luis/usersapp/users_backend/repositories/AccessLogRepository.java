@@ -13,4 +13,5 @@ import java.util.List;
 public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
     List<AccessLog> findByUserOrderByAccessTimeDesc(User user);
     List<AccessLog> findByAccessTimeBetween(Date startDate, Date endDate);
+    List<AccessLog> findTop10ByOrderByAccessTimeDesc();
 }
