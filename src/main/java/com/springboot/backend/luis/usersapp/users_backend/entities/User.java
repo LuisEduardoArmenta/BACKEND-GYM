@@ -46,10 +46,12 @@ public class User implements IUser {
 
     @NotEmpty
     @Email
+    @Column(unique = true)
     private String email;
 
     @NotBlank
     @Size(min=4, max = 12)
+    @Column(unique = true)
     private String username;
 
     @Transient
